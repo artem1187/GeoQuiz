@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
@@ -13,10 +16,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.geoquiz.ui.theme.GeoQuizTheme
 
@@ -51,23 +60,68 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GeoQuizApp() {
 
-    Text(
-        text = "GeoQuiz App",
-        fontSize = 24.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
-    )
+    var currentQuestionIndex by remember { mutableStateOf(0) }
+
+    val currentQuestion = questions[currentQuestionIndex]
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "GeoQuiz",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+
+        Text(
+            text = "Question ${currentQuestionIndex + 1}/${questions.size}",
+            fontSize = 18.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = currentQuestion.text,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp)
+        )
+
+        Text(
+            text = "GeoQuiz App",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
+        )
+    }
+
+    @Composable
+    fun GeoQuizTheme(content: @Composable () -> Unit) {
+        MaterialTheme(
+            colorScheme = lightColorScheme(
+                primary = androidx.compose.ui.graphics.Color(0xFF2196F3),
+                onPrimary = androidx.compose.ui.graphics.Color.White,
+                surface = androidx.compose.ui.graphics.Color.White,
+                onSurface = androidx.compose.ui.graphics.Color.Black
+            ),
+            content = content
+        )
+    }
 }
 
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun GeoQuizTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = lightColorScheme(
-            primary = androidx.compose.ui.graphics.Color(0xFF2196F3),
-            onPrimary = androidx.compose.ui.graphics.Color.White,
-            surface = androidx.compose.ui.graphics.Color.White,
-            onSurface = androidx.compose.ui.graphics.Color.Black
-        ),
-        content = content
-    )
+fun GeoQuizAppPreview() {
+    GeoQuizTheme {
+        GeoQuizApp()
+    }
 }
