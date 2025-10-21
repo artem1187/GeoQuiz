@@ -6,10 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -61,8 +66,11 @@ class MainActivity : ComponentActivity() {
 fun GeoQuizApp() {
 
     var currentQuestionIndex by remember { mutableStateOf(0) }
+    var answered by remember { mutableStateOf(false) }
+    var userAnswers by remember { mutableStateOf(List(questions.size) { false }) }
 
     val currentQuestion = questions[currentQuestionIndex]
+    val isLastQuestion = currentQuestionIndex == questions.size - 1
 
     Column(
         modifier = Modifier
@@ -102,21 +110,121 @@ fun GeoQuizApp() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
         )
-    }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text("True", fontSize = 18.sp)
+            }
 
-    @Composable
-    fun GeoQuizTheme(content: @Composable () -> Unit) {
-        MaterialTheme(
-            colorScheme = lightColorScheme(
-                primary = androidx.compose.ui.graphics.Color(0xFF2196F3),
-                onPrimary = androidx.compose.ui.graphics.Color.White,
-                surface = androidx.compose.ui.graphics.Color.White,
-                onSurface = androidx.compose.ui.graphics.Color.Black
-            ),
-            content = content
-        )
+            Button(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text("False", fontSize = 18.sp)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = {
+                if (currentQuestionIndex < questions.size - 1) {
+                    currentQuestionIndex++
+                }
+            },
+            modifier = Modifier.fillMaxWidth(0.8f)
+        ) {
+            Text("Next Question", fontSize = 18.sp)
+        }
+        if (!answered) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = {
+                        checkAnswer(true, currentQuestion.answer, userAnswers, currentQuestionIndex) { newAnswers ->
+                            userAnswers = newAnswers
+                        }
+                        answered = true
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("True", fontSize = 18.sp)
+                }
+
+                Button(
+                    onClick = {
+                        checkAnswer(false, currentQuestion.answer, userAnswers, currentQuestionIndex) { newAnswers ->
+                            userAnswers = newAnswers
+                        }
+                        answered = true
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("False", fontSize = 18.sp)
+                }
+            }
+        } else {
+            Text(
+                text = if (userAnswers[currentQuestionIndex]) "Your answer: True" else "Your answer: False",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        if (answered && !isLastQuestion) {
+            Button(
+                onClick = {
+                    currentQuestionIndex++
+                    answered = false
+                },
+                enabled = answered && !isLastQuestion,
+                modifier = Modifier.fillMaxWidth(0.8f)
+            ) {
+                Text("Next Question", fontSize = 18.sp)
+            }
+        }
     }
 }
+
+fun checkAnswer(
+    userAnswer: Boolean,
+    correctAnswer: Boolean,
+    currentAnswers: List<Boolean>,
+    currentIndex: Int,
+    onAnswersUpdated: (List<Boolean>) -> Unit
+) {
+    val newAnswers = currentAnswers.toMutableList()
+    newAnswers[currentIndex] = userAnswer
+    onAnswersUpdated(newAnswers)
+}
+
+@Composable
+fun GeoQuizTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = lightColorScheme(
+            primary = androidx.compose.ui.graphics.Color(0xFF2196F3),
+            onPrimary = androidx.compose.ui.graphics.Color.White,
+            surface = androidx.compose.ui.graphics.Color.White,
+            onSurface = androidx.compose.ui.graphics.Color.Black
+        ),
+        content = content
+    )
+}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
